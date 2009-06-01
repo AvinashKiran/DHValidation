@@ -27,7 +27,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 @synthesize delegate;
 
 - (id) init {        
-    errorStrings = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+    return [self initWithErrorMessages:[NSMutableDictionary dictionaryWithObjectsAndKeys:
                         @"Letters only",                        CLValidateAlpha,
                         @"Letters and Spaces Only",             CLValidateAlphaSpaces,
                         @"Letters and Numbers Only",            CLValidateAlphaNumeric,
@@ -35,9 +35,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
                         @"Can't be empty",                      CLValidateNotEmpty,
                         @"Invalid Email Address",               CLValidateEmail, 
                         @"Does not match confirmation",         CLValidateMatchesConfirmation, 
-                        @"",                                    CLValidateCustomAsync, nil];
-                        
-    [self initWithErrorMessages:[errorStrings autorelease]];
+                        @"",                                    CLValidateCustomAsync, nil]];
 }
 
 - (id) initWithErrorMessages: (NSDictionary *) errors {
