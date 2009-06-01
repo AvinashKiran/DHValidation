@@ -47,7 +47,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
     {
         errorTable = [[NSMutableDictionary alloc] initWithCapacity:7];
         asyncErrorFields = [[NSMutableDictionary alloc] initWithCapacity:1];
-        errorStrings = errors;
+        errorStrings = [errors mutableCopy];
     }
     
     return self;
