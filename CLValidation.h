@@ -18,6 +18,10 @@ extern NSString * const CLValidateMatchesConfirmation;
 extern NSString * const CLValidateMinimumLength;
 extern NSString * const CLValidateCustomAsync;
 
+@protocol CLValidationDelegate  <NSObject>
+- (void) updateErrorField: (NSTextField *) errorField withErrors: (NSArray *) errors;
+@end
+
 @interface CLValidation : NSObject {
     NSMutableDictionary *errorTable;
     NSMutableDictionary *errorStrings;
@@ -32,7 +36,7 @@ extern NSString * const CLValidateCustomAsync;
     NSMutableArray *tempErrors;
 }
 
-@property (retain) id delegate;
+@property (assign) id <CLValidationDelegate> delegate;
 
 - (id) initWithErrorMessages: (NSDictionary *) errors;
 
@@ -63,8 +67,4 @@ extern NSString * const CLValidateCustomAsync;
 - (void) asyncValidationMethod: (id) candidate paramater: (NSArray *) objectAndSelector;
 - (void) asyncValidationMethodComplete: (NSString *) tag isValid: (BOOL) isValid error: (NSString *) error;
     
-@end
-
-@protocol CLValidation  <NSObject>
-- (void) updateErrorField: (NSTextField *) errorField withErrors: (NSArray *) errors;
 @end
