@@ -26,7 +26,9 @@ extern NSString * const CLValidateCustomAsync;
 @interface CLValidation : NSObject {
     NSMutableDictionary *errorTable;
     NSMutableDictionary *errorStrings;
+    
     NSMutableDictionary *asyncErrorFields;
+    BOOL asyncInProgress;
     
     NSString *currentTag;
     NSTextField *currentErrorField;
@@ -38,6 +40,7 @@ extern NSString * const CLValidateCustomAsync;
 }
 
 @property (assign) id <CLValidationDelegate> delegate;
+@property (readonly) BOOL asyncInProgress;
 
 - (id) initWithErrorMessages: (NSDictionary *) errors;
 

@@ -25,6 +25,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 @implementation CLValidation
 
 @synthesize delegate;
+@synthesize asyncInProgress;
 
 - (id) init {        
     return [self initWithErrorMessages:[NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -234,6 +235,8 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 // This is to allow thing like making a web request to make a validation
 // For example to check if a username is available.
 - (void) asyncValidationMethod: (id) candidate paramater: (NSArray *) objectAndSelectorString {
+    asyncInProgress = YES;
+    
     // Make us the delegate of this class, so we get the response
     [[objectAndSelectorString objectAtIndex:0] setDelegate:self];
     [[objectAndSelectorString objectAtIndex:0] performSelector:NSSelectorFromString([objectAndSelectorString objectAtIndex:1]) withObject:candidate withObject:currentTag]; 
@@ -241,7 +244,8 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 }
 
 - (void) asyncValidationMethodComplete: (NSString *) tag isValid: (BOOL) isValid error: (NSString *) error {
-    NSLog(@"%@ => %d", tag, isValid);
+    asyncInProgress = NO;
+    
     if(!isValid) [delegate updateErrorField:[asyncErrorFields objectForKey:tag] withErrors:[NSArray arrayWithObject:error]];
     [self modifyErrorTable:tag method:CLValidateCustomAsync isValid:isValid];
     [asyncErrorFields removeObjectForKey:tag];
