@@ -37,7 +37,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
                         @"Does not match confirmation",         CLValidateMatchesConfirmation, 
                         @"",                                    CLValidateCustomAsync, nil];
                         
-    [self initWithErrorMessages:errorStrings];
+    [self initWithErrorMessages:[errorStrings autorelease]];
 }
 
 - (id) initWithErrorMessages: (NSDictionary *) errors {

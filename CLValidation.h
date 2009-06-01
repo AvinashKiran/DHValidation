@@ -19,6 +19,7 @@ extern NSString * const CLValidateMinimumLength;
 extern NSString * const CLValidateCustomAsync;
 
 @protocol CLValidationDelegate  <NSObject>
+@optional
 - (void) updateErrorField: (NSTextField *) errorField withErrors: (NSArray *) errors;
 @end
 
