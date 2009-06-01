@@ -34,10 +34,7 @@ extern NSString * const CLValidateCustomAsync;
 
 @property (retain) id delegate;
 
-- (id) init;
-- (id) initWithCustomErrors: (NSDictionary *) errors;
-
-- (void) dealloc;
+- (id) initWithErrorMessages: (NSDictionary *) errors;
 
 - (NSArray *) validateObject: (id) object tag: (NSString *) tag errorField: (NSTextField *) errorField rules: (NSString * const) firstRule, ... NS_REQUIRES_NIL_TERMINATION;
 - (NSArray *) validateObjectWithParamaters: (id) object tag: (NSString *) tag errorField: (NSTextField *) errorField rules: (id) firstRule, ... NS_REQUIRES_NIL_TERMINATION;
@@ -66,4 +63,8 @@ extern NSString * const CLValidateCustomAsync;
 - (void) asyncValidationMethod: (id) candidate paramater: (NSArray *) objectAndSelector;
 - (void) asyncValidationMethodComplete: (NSString *) tag isValid: (BOOL) isValid error: (NSString *) error;
     
+@end
+
+@protocol CLValidation  <NSObject>
+- (void) updateErrorField: (NSTextField *) errorField withErrors: (NSArray *) errors;
 @end

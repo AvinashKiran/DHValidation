@@ -26,33 +26,27 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 
 @synthesize delegate;
 
-- (id) init {
+- (id) init {        
+    errorStrings = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                        @"Letters only",                        CLValidateAlpha,
+                        @"Letters and Spaces Only",             CLValidateAlphaSpaces,
+                        @"Letters and Numbers Only",            CLValidateAlphaNumeric,
+                        @"Letters, Numbers and Dashes Only",    CLValidateAlphaNumericDash,
+                        @"Can't be empty",                      CLValidateNotEmpty,
+                        @"Invalid Email Address",               CLValidateEmail, 
+                        @"Does not match confirmation",         CLValidateMatchesConfirmation, 
+                        @"",                                    CLValidateCustomAsync, nil];
+                        
+    [self initWithErrorMessages:errorStrings];
+}
+
+- (id) initWithErrorMessages: (NSDictionary *) errors {
     self = [super init];
     
     if(self)
     {
         errorTable = [[NSMutableDictionary alloc] initWithCapacity:7];
         asyncErrorFields = [[NSMutableDictionary alloc] initWithCapacity:1];
-        errorStrings = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                            @"Letters only",                        CLValidateAlpha,
-                            @"Letters and Spaces Only",             CLValidateAlphaSpaces,
-                            @"Letters and Numbers Only",            CLValidateAlphaNumeric,
-                            @"Letters, Numbers and Dashes Only",    CLValidateAlphaNumericDash,
-                            @"Can't be empty",                      CLValidateNotEmpty,
-                            @"Invalid Email Address",               CLValidateEmail, 
-                            @"Does not match confirmation",         CLValidateMatchesConfirmation, 
-                            @"",                                    CLValidateCustomAsync, nil];
-    }
-    
-    return self;
-}
-
-- (id) initWithCustomErrors: (NSDictionary *) errors {
-    self = [self init];
-    
-    if(self)
-    {
-        [errorStrings release];
         errorStrings = errors;
     }
     
@@ -112,7 +106,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 
 - (void) updateErrorFieldDelegate:errorField withErrors:errors {
     // If they've provided an errorField we'll assume they've setup their delegate
-    if(errorField)
+    if(errorField && [delegate respondsToSelector:@selector(updateErrorField:withErrors:)])
     {
         [delegate updateErrorField:errorField withErrors:errors];
     }
@@ -169,6 +163,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
         }
     }
     
+    NSLog(@"%@", errorTable);
     return errors;
 }
 
@@ -248,6 +243,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 }
 
 - (void) asyncValidationMethodComplete: (NSString *) tag isValid: (BOOL) isValid error: (NSString *) error {
+    NSLog(@"%@ => %d", tag, isValid);
     if(!isValid) [delegate updateErrorField:[asyncErrorFields objectForKey:tag] withErrors:[NSArray arrayWithObject:error]];
     [self modifyErrorTable:tag method:CLValidateCustomAsync isValid:isValid];
     [asyncErrorFields removeObjectForKey:tag];
