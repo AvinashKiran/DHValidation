@@ -12,11 +12,14 @@ extern NSString * const DHValidateAlpha;
 extern NSString * const DHValidateAlphaSpaces;
 extern NSString * const DHValidateAlphaNumeric;
 extern NSString * const DHValidateAlphaNumericDash;
+extern NSString * const DHValidateName;
 extern NSString * const DHValidateNotEmpty;
 extern NSString * const DHValidateEmail;
 extern NSString * const DHValidateMatchesConfirmation;
 extern NSString * const DHValidateMinimumLength;
 extern NSString * const DHValidateCustomAsync;
+extern NSString * const DHValidateCustom;
+extern NSString * const DHCancelAsync;
 
 @protocol DHValidationDelegate  <NSObject>
 @optional
@@ -40,14 +43,13 @@ extern NSString * const DHValidateCustomAsync;
 }
 
 @property (assign) id <DHValidationDelegate> delegate;
-@property (readonly) BOOL asyncInProgress;
 
 - (id) initWithErrorMessages: (NSDictionary *) errors;
 
 - (NSArray *) validateObject: (id) object tag: (NSString *) tag errorField: (NSTextField *) errorField rules: (NSString * const) firstRule, ... NS_REQUIRES_NIL_TERMINATION;
 - (NSArray *) validateObjectWithParamaters: (id) object tag: (NSString *) tag errorField: (NSTextField *) errorField rules: (id) firstRule, ... NS_REQUIRES_NIL_TERMINATION;
 - (void) validateRule: (NSString * const) rule candidate: (id) candidate tag: (NSString *) tag;
-- (void) validateRuleWithParamater: (NSString * const) rule candidate: (id) candidate tag: (NSString *) tag paramater: (id) paramater;
+- (void) validateRuleWithParamater: (NSString * const) rule candidate: (id) candidate tag: (NSString *) tag parameter: (id) parameter;
 - (void) modifyErrorTable: (NSString *) tag method: (NSString * const) method isValid: (BOOL) isValid;
 - (int) errorCount;
 - (int) errorCountForTag: (NSString *) tag;
@@ -65,10 +67,13 @@ extern NSString * const DHValidateCustomAsync;
 - (BOOL) validateNotEmpty: (NSString *) candidate;
 - (BOOL) validateEmail: (NSString *) candidate;
 
-// Complex validators (requires second paramater)
-- (BOOL) validateMatchesConfirmation: (NSString *) candidate paramater: (NSString *) confirmation;
-- (BOOL) validateMinimumLength: (NSString *) candidate paramater: (int) length;
-- (void) asyncValidationMethod: (id) candidate paramater: (NSArray *) objectAndSelector;
+// Complex validators (requires second parameter)
+- (BOOL) validateMatchesConfirmation: (NSString *) candidate parameter: (NSString *) confirmation;
+- (BOOL) validateMinimumLength: (NSString *) candidate parameter: (int) length;
+- (void) asyncValidationMethod: (id) candidate parameter: (NSArray *) targetAndSelectorString;
 - (void) asyncValidationMethodComplete: (NSString *) tag isValid: (BOOL) isValid error: (NSString *) error;
-    
+
+// Valiator Cancels
+- (BOOL) cancelAsync: (id) candidate parameter: (NSArray *) tagAndTarget;
+
 @end

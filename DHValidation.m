@@ -14,6 +14,7 @@ NSString * const DHValidateAlpha = @"validateAlpha:";
 NSString * const DHValidateAlphaSpaces = @"validateAlphaSpaces:";
 NSString * const DHValidateAlphaNumeric = @"validateAlphanumeric:";
 NSString * const DHValidateAlphaNumericDash = @"validateAlphanumericDash:";
+NSString * const DHValidateName = @"validateName:";
 NSString * const DHValidateNotEmpty = @"validateNotEmpty:";
 NSString * const DHValidateEmail = @"validateEmail:";
 
@@ -21,11 +22,12 @@ NSString * const DHValidateEmail = @"validateEmail:";
 NSString * const DHValidateMatchesConfirmation = @"validateMatchesConfirmation:";
 NSString * const DHValidateMinimumLength = @"validateMinimumLength:";
 NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
+NSString * const DHValidateCustom = @"customValidationMethod:";
+NSString * const DHCancelAsync = @"cancelAsync:";
 
 @implementation DHValidation
 
 @synthesize delegate;
-@synthesize asyncInProgress;
 
 - (id) init {        
     return [self initWithErrorMessages:[NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -33,10 +35,13 @@ NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
                         @"Letters and Spaces Only",             DHValidateAlphaSpaces,
                         @"Letters and Numbers Only",            DHValidateAlphaNumeric,
                         @"Letters, Numbers and Dashes Only",    DHValidateAlphaNumericDash,
+                        @"Letters only",                        DHValidateName,
                         @"Can't be empty",                      DHValidateNotEmpty,
                         @"Invalid Email Address",               DHValidateEmail, 
                         @"Does not match confirmation",         DHValidateMatchesConfirmation, 
-                        @"",                                    DHValidateCustomAsync, nil]];
+                        @"",                                    DHValidateCustomAsync, 
+                        @"",                                    DHValidateCustom, 
+                        @"",                                    DHCancelAsync, nil]];
 }
 
 - (id) initWithErrorMessages: (NSDictionary *) errors {
@@ -93,7 +98,7 @@ NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
     
     while(nextObject)
     {
-        [self validateRuleWithParamater:nextObject candidate:object tag:tag paramater:va_arg(arguments, id)];
+        [self validateRuleWithParamater:nextObject candidate:object tag:tag parameter:va_arg(arguments, id)];
         nextObject = va_arg(arguments, id);
     }
 
@@ -112,17 +117,17 @@ NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
 }
 
 - (void) validateRule: (NSString * const) rule candidate: (id) candidate tag: (NSString *) tag  {
-    [self validateRuleWithParamater:rule candidate: candidate tag:tag paramater:nil];
+    [self validateRuleWithParamater:rule candidate: candidate tag:tag parameter:nil];
 }
 
-- (void) validateRuleWithParamater: (NSString * const) rule candidate: (id) candidate tag: (NSString *) tag paramater: (id) paramater {
-    SEL selector = NSSelectorFromString([rule stringByAppendingString:@"paramater:"]);
+- (void) validateRuleWithParamater: (NSString * const) rule candidate: (id) candidate tag: (NSString *) tag parameter: (id) parameter {
+    SEL selector = NSSelectorFromString([rule stringByAppendingString:@"parameter:"]);
     BOOL isValid;
     
     // Check if this method takes a paramter
     if([self respondsToSelector:selector])
     {
-        isValid = [self performSelector:selector withObject:candidate withObject:paramater];
+        isValid = [self performSelector:selector withObject:candidate withObject:parameter];
     }
     else
     {
@@ -162,7 +167,6 @@ NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
         }
     }
     
-    NSLog(@"%@", errorTable);
     return errors;
 }
 
@@ -207,6 +211,12 @@ NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
     return [self validateStringInCharacterSet:candidate characterSet:characterSet];
 }
 
+- (BOOL) validateName: (NSString *) candidate {
+    NSMutableCharacterSet *characterSet = [NSMutableCharacterSet alphanumericCharacterSet];
+    [characterSet addCharactersInString:@"'- "];
+    return [self validateStringInCharacterSet:candidate characterSet:characterSet];
+}
+
 - (BOOL) validateStringInCharacterSet: (NSString *) string characterSet: (NSMutableCharacterSet *) characterSet {
     // Since we invert the character set if it is == NSNotFound then it is in the character set.
     return ([string rangeOfCharacterFromSet:[characterSet invertedSet]].location != NSNotFound) ? NO : YES;
@@ -223,32 +233,56 @@ NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
     return [emailTest evaluateWithObject:candidate];
 }
 
-- (BOOL) validateMatchesConfirmation: (NSString *) candidate paramater: (NSString *) confirmation {
+- (BOOL) validateMatchesConfirmation: (NSString *) candidate parameter: (NSString *) confirmation {
     return [candidate isEqualToString:confirmation];
 }
 
-- (BOOL) validateMinimumLength: (NSString *) candidate paramater: (int) length {
+- (BOOL) validateMinimumLength: (NSString *) candidate parameter: (int) length {
     [errorStrings setObject:[NSString stringWithFormat:@"Not longer than %d characters", length] forKey:DHValidateMinimumLength];
     return ([candidate length] >= length) ? YES : NO;
 }
 
 // This is to allow thing like making a web request to make a validation
 // For example to check if a username is available.
-- (void) asyncValidationMethod: (id) candidate paramater: (NSArray *) objectAndSelectorString {
-    asyncInProgress = YES;
+- (void) asyncValidationMethod: (id) candidate parameter: (NSInvocation *) invocation {    
+    // Make us the delegate of this DHass, so we get the response
+    [[invocation target] setDelegate:self];
     
-    // Make us the delegate of this class, so we get the response
-    [[objectAndSelectorString objectAtIndex:0] setDelegate:self];
-    [[objectAndSelectorString objectAtIndex:0] performSelector:NSSelectorFromString([objectAndSelectorString objectAtIndex:1]) withObject:candidate withObject:currentTag]; 
+    [invocation setArgument:&candidate atIndex:2];
+    [invocation invoke];
+    
     [asyncErrorFields setObject:currentErrorField forKey:currentTag];
 }
 
-- (void) asyncValidationMethodComplete: (NSString *) tag isValid: (BOOL) isValid error: (NSString *) error {
-    asyncInProgress = NO;
-    
-    if(!isValid) [delegate updateErrorField:[asyncErrorFields objectForKey:tag] withErrors:[NSArray arrayWithObject:error]];
-    [self modifyErrorTable:tag method:DHValidateCustomAsync isValid:isValid];
+- (void) asyncMethodComplete: (NSString *) tag withResult: (BOOL) result withMessage: (NSString *) message {
+    if(!result) [delegate updateErrorField:[asyncErrorFields objectForKey:tag] withErrors:[NSArray arrayWithObject:message]];
+    [self modifyErrorTable:tag method:DHValidateCustomAsync isValid:result];
     [asyncErrorFields removeObjectForKey:tag];
+}
+
+- (id) customValidationMethod: (id) candidate parameter: (NSInvocation *) invocation {
+    if([[invocation target] respondsToSelector:@selector(errorMessageFor:)])
+    {
+        NSString *method; 
+        [invocation getArgument:&method atIndex:3];
+        
+        NSString *errorMessage = [[invocation target] errorMessageFor:method];
+        [errorStrings setObject:errorMessage forKey:DHValidateCustom];
+    }
+    
+    [invocation setArgument:&candidate atIndex:2];
+    [invocation invoke];
+    
+    id returnValue;
+    [invocation getReturnValue:&returnValue];
+
+    return returnValue;
+}
+
+- (BOOL) cancelAsync: (id) candidate parameter: (NSArray *) tagAndTarget {
+    [[tagAndTarget objectAtIndex:1] cancelAsync:[tagAndTarget objectAtIndex:0]];
+    [self modifyErrorTable:[tagAndTarget objectAtIndex:0] method:DHValidateCustomAsync isValid:YES];
+    return YES;
 }
 
 @end
