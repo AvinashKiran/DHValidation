@@ -1,5 +1,5 @@
 //
-//  CLValidation.h
+//  DHValidation.h
 //  ceol
 //
 //  Created by Ben McRedmond on 24/05/2009.
@@ -8,22 +8,22 @@
 
 #import <Cocoa/Cocoa.h>
 
-extern NSString * const CLValidateAlpha;
-extern NSString * const CLValidateAlphaSpaces;
-extern NSString * const CLValidateAlphaNumeric;
-extern NSString * const CLValidateAlphaNumericDash;
-extern NSString * const CLValidateNotEmpty;
-extern NSString * const CLValidateEmail;
-extern NSString * const CLValidateMatchesConfirmation;
-extern NSString * const CLValidateMinimumLength;
-extern NSString * const CLValidateCustomAsync;
+extern NSString * const DHValidateAlpha;
+extern NSString * const DHValidateAlphaSpaces;
+extern NSString * const DHValidateAlphaNumeric;
+extern NSString * const DHValidateAlphaNumericDash;
+extern NSString * const DHValidateNotEmpty;
+extern NSString * const DHValidateEmail;
+extern NSString * const DHValidateMatchesConfirmation;
+extern NSString * const DHValidateMinimumLength;
+extern NSString * const DHValidateCustomAsync;
 
-@protocol CLValidationDelegate  <NSObject>
+@protocol DHValidationDelegate  <NSObject>
 @optional
 - (void) updateErrorField: (NSTextField *) errorField withErrors: (NSArray *) errors;
 @end
 
-@interface CLValidation : NSObject {
+@interface DHValidation : NSObject {
     NSMutableDictionary *errorTable;
     NSMutableDictionary *errorStrings;
     
@@ -39,7 +39,7 @@ extern NSString * const CLValidateCustomAsync;
     NSMutableArray *tempErrors;
 }
 
-@property (assign) id <CLValidationDelegate> delegate;
+@property (assign) id <DHValidationDelegate> delegate;
 @property (readonly) BOOL asyncInProgress;
 
 - (id) initWithErrorMessages: (NSDictionary *) errors;

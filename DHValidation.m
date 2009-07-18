@@ -1,5 +1,5 @@
 //
-//  CLValidation.m
+//  DHValidation.m
 //  ceol
 //
 //  Created by Ben McRedmond on 24/05/2009.
@@ -7,36 +7,36 @@
 //
 
 #import <stdarg.h>
-#import "CLValidation.h"
+#import "DHValidation.h"
 
 // Basic Validators
-NSString * const CLValidateAlpha = @"validateAlpha:";
-NSString * const CLValidateAlphaSpaces = @"validateAlphaSpaces:";
-NSString * const CLValidateAlphaNumeric = @"validateAlphanumeric:";
-NSString * const CLValidateAlphaNumericDash = @"validateAlphanumericDash:";
-NSString * const CLValidateNotEmpty = @"validateNotEmpty:";
-NSString * const CLValidateEmail = @"validateEmail:";
+NSString * const DHValidateAlpha = @"validateAlpha:";
+NSString * const DHValidateAlphaSpaces = @"validateAlphaSpaces:";
+NSString * const DHValidateAlphaNumeric = @"validateAlphanumeric:";
+NSString * const DHValidateAlphaNumericDash = @"validateAlphanumericDash:";
+NSString * const DHValidateNotEmpty = @"validateNotEmpty:";
+NSString * const DHValidateEmail = @"validateEmail:";
 
 // Validations that take second parameters
-NSString * const CLValidateMatchesConfirmation = @"validateMatchesConfirmation:";
-NSString * const CLValidateMinimumLength = @"validateMinimumLength:";
-NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
+NSString * const DHValidateMatchesConfirmation = @"validateMatchesConfirmation:";
+NSString * const DHValidateMinimumLength = @"validateMinimumLength:";
+NSString * const DHValidateCustomAsync = @"asyncValidationMethod:";
 
-@implementation CLValidation
+@implementation DHValidation
 
 @synthesize delegate;
 @synthesize asyncInProgress;
 
 - (id) init {        
     return [self initWithErrorMessages:[NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        @"Letters only",                        CLValidateAlpha,
-                        @"Letters and Spaces Only",             CLValidateAlphaSpaces,
-                        @"Letters and Numbers Only",            CLValidateAlphaNumeric,
-                        @"Letters, Numbers and Dashes Only",    CLValidateAlphaNumericDash,
-                        @"Can't be empty",                      CLValidateNotEmpty,
-                        @"Invalid Email Address",               CLValidateEmail, 
-                        @"Does not match confirmation",         CLValidateMatchesConfirmation, 
-                        @"",                                    CLValidateCustomAsync, nil]];
+                        @"Letters only",                        DHValidateAlpha,
+                        @"Letters and Spaces Only",             DHValidateAlphaSpaces,
+                        @"Letters and Numbers Only",            DHValidateAlphaNumeric,
+                        @"Letters, Numbers and Dashes Only",    DHValidateAlphaNumericDash,
+                        @"Can't be empty",                      DHValidateNotEmpty,
+                        @"Invalid Email Address",               DHValidateEmail, 
+                        @"Does not match confirmation",         DHValidateMatchesConfirmation, 
+                        @"",                                    DHValidateCustomAsync, nil]];
 }
 
 - (id) initWithErrorMessages: (NSDictionary *) errors {
@@ -228,7 +228,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
 }
 
 - (BOOL) validateMinimumLength: (NSString *) candidate paramater: (int) length {
-    [errorStrings setObject:[NSString stringWithFormat:@"Not longer than %d characters", length] forKey:CLValidateMinimumLength];
+    [errorStrings setObject:[NSString stringWithFormat:@"Not longer than %d characters", length] forKey:DHValidateMinimumLength];
     return ([candidate length] >= length) ? YES : NO;
 }
 
@@ -247,7 +247,7 @@ NSString * const CLValidateCustomAsync = @"asyncValidationMethod:";
     asyncInProgress = NO;
     
     if(!isValid) [delegate updateErrorField:[asyncErrorFields objectForKey:tag] withErrors:[NSArray arrayWithObject:error]];
-    [self modifyErrorTable:tag method:CLValidateCustomAsync isValid:isValid];
+    [self modifyErrorTable:tag method:DHValidateCustomAsync isValid:isValid];
     [asyncErrorFields removeObjectForKey:tag];
 }
 
