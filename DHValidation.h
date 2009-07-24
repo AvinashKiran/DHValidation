@@ -70,8 +70,8 @@ extern NSString * const DHCancelAsync;
 // Complex validators (requires second parameter)
 - (BOOL) validateMatchesConfirmation: (NSString *) candidate parameter: (NSString *) confirmation;
 - (BOOL) validateMinimumLength: (NSString *) candidate parameter: (int) length;
-- (void) asyncValidationMethod: (id) candidate parameter: (NSArray *) targetAndSelectorString;
-- (void) asyncValidationMethodComplete: (NSString *) tag isValid: (BOOL) isValid error: (NSString *) error;
+- (void) asyncValidationMethod: (id) candidate parameter: (NSInvocation *) invocation;
+- (void) asyncMethodComplete: (NSString *) tag withResult: (BOOL) result withMessage: (NSString *) message;
 
 // Valiator Cancels
 - (BOOL) cancelAsync: (id) candidate parameter: (NSArray *) tagAndTarget;
